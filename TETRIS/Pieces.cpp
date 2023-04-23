@@ -1,13 +1,7 @@
-#include "Piece.h"
+#include "Pieces.h"
 
-//Pieces' definition
-const int PIECES_KINDS = 7; //Square, I, L, L mirrored, N, N mirrored, T
-const int PIECES_ROTATIONS = 4;
-const int PIECES_HORIZONTAL_BLOCKS = 5;
-const int PIECES_VERTICAL_BLOCKS = 5;
-const int PIECES_POSITIONS = 2; //xpos, ypos
-
-char mPieces [PIECES_KINDS][PIECES_ROTATIONS][PIECES_HORIZONTAL_BLOCKS][PIECES_VERTICAL_BLOCKS] =
+// Pieces definition
+char mPieces [7 /*kind */ ][4 /* rotation */ ][5 /* horizontal blocks */ ][5 /* vertical blocks */ ] =
 {
 // Square
   {
@@ -230,8 +224,9 @@ char mPieces [PIECES_KINDS][PIECES_ROTATIONS][PIECES_HORIZONTAL_BLOCKS][PIECES_V
    }
 };
 
+
 // Displacement of the piece to the position where it is first drawn in the board when it is created
-int mPiecesInitialPosition  [PIECES_KINDS][PIECES_ROTATIONS][PIECES_POSITIONS] =
+int mPiecesInitialPosition  [7 /*kind */ ][4 /* rotation */ ][2 /* position */] =
 {
 /* Square */
   {
@@ -284,21 +279,39 @@ int mPiecesInitialPosition  [PIECES_KINDS][PIECES_ROTATIONS][PIECES_POSITIONS] =
    },
 };
 
-//Return the type of a block (0 = no-block, 1 = normal block, 2 = pivot block)
-int Piece::GetBlockType (int pPiece, int pRotation, int pX, int pY)
+
+/*
+======================================
+Return the type of a block (0 = no-block, 1 = normal block, 2 = pivot block)
+======================================
+*/
+int Pieces::GetBlockType (int pPiece, int pRotation, int pX, int pY)
 {
 	return mPieces [pPiece][pRotation][pX][pY];
 }
 
-//Returns the horizontal displacement of the piece that has to be applied in order to create it in the correct position
-int Piece::GetXInitialPosition (int pPiece, int pRotation)
+
+/*
+======================================
+Returns the horizontal displacement of the piece that has to be applied in order to create it in the
+correct position.
+======================================
+*/
+int Pieces::GetXInitialPosition (int pPiece, int pRotation)
 {
 	return mPiecesInitialPosition [pPiece][pRotation][0];
 }
 
-//Returns the vertical displacement of the piece that has to be applied in order to create it in the correct position
-int Piece::GetYInitialPosition (int pPiece, int pRotation)
+
+/*
+======================================
+Returns the vertical displacement of the piece that has to be applied in order to create it in the
+correct position.
+======================================
+*/
+int Pieces::GetYInitialPosition (int pPiece, int pRotation)
 {
 	return mPiecesInitialPosition [pPiece][pRotation][1];
 }
+
 

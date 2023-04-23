@@ -1,13 +1,16 @@
-#ifndef Piece_h
-#define Piece_h
+#ifndef _PIECES_
+#define _PIECES_
 
-class Piece
+#include "Common.h"
+
+class Pieces
 {
-    public:
+public:
 
 	int GetBlockType		(int pPiece, int pRotation, int pX, int pY);
 	int GetXInitialPosition (int pPiece, int pRotation);
 	int GetYInitialPosition (int pPiece, int pRotation);
 };
 
-#endif // Piece_h
+#endif // _PIECES_
+

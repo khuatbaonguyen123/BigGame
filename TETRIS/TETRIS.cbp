@@ -30,13 +30,22 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add directory="C:/Users/khuatduchoa/Documents/SDL/SDL2-2.26.3/x86_64-w64-mingw32/lib" />
 		</Compiler>
+		<Linker>
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer" />
+			<Add directory="C:/Users/khuatduchoa/Documents/SDL/SDL2-2.26.3/x86_64-w64-mingw32/include/SDL2" />
+		</Linker>
 		<Unit filename="../../../Documents/SDL/SDL2-2.26.3/x86_64-w64-mingw32/bin/SDL2.dll" />
 		<Unit filename="../../../Documents/SDL/SDL2-2.26.3/x86_64-w64-mingw32/bin/SDL2_image.dll" />
 		<Unit filename="../../../Documents/SDL/SDL2-2.26.3/x86_64-w64-mingw32/bin/SDL2_mixer.dll" />
 		<Unit filename="../../../Documents/SDL/SDL2-2.26.3/x86_64-w64-mingw32/bin/SDL2_ttf.dll" />
-		<Unit filename="Piece.cpp" />
-		<Unit filename="Piece.h" />
+		<Unit filename="Board.cpp" />
+		<Unit filename="Board.h" />
+		<Unit filename="LTexture.cpp" />
+		<Unit filename="LTexture.h" />
+		<Unit filename="Pieces.cpp" />
+		<Unit filename="Pieces.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
