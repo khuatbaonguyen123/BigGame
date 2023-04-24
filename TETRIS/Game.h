@@ -6,11 +6,13 @@
 #include "Board.h"
 #include "LTexture.h"
 
+#define WAIT_TIME 700 //Number of milliseconds that the piece remains before going 1 block down
+
 class Game
 {
 public:
 
-	Game			(Board *pBoard, Pieces *pPieces, int pScreenHeight);
+	Game			(Board *pBoard, Pieces *pPieces, LTexture *pTexture);
 
 	void DrawScene ();
 	void CreateNewPiece ();
@@ -20,17 +22,17 @@ public:
 
 private:
 
-	int mScreenHeight;				// Screen height in pixels
 	int mNextPosX, mNextPosY;		// Position of the next piece
 	int mNextPiece, mNextRotation;	// Kind and rotation of the next piece
 
 	Board *mBoard;
 	Pieces *mPieces;
+	LTexture *mTexture;
 
 	int GetRand (int pA, int pB);
 	void InitGame();
 	void DrawPiece (int pX, int pY, int pPiece, int pRotation);
-	void DrawBoard ();
+	void DrawBoard (SDL_Texture* boardTexture);
 };
 
 #endif

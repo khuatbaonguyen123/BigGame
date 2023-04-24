@@ -2,6 +2,7 @@
 #define _COMMON_
 
 #include <iostream>
+#include <time.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -20,6 +21,18 @@ SDL_Renderer* gRenderer = NULL;
 
 //Globally used font
 TTF_Font *gFont = NULL;
+
+//Piece Texture
+SDL_Texture* pieceTexture = NULL;
+
+//Board Texture
+SDL_Texture* boardTexture = NULL;
+
+//Background texture
+SDL_Texture* bkgTexture = NULL;
+
+//Holding next piece board
+SDL_Texture* nextPieceBoard = NULL;
 
 //COLOR KEY
 const int COLOR_KEY_R = 167;

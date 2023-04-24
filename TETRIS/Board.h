@@ -5,9 +5,9 @@
 #include "Pieces.h"
 
 //BOARD AND PIECE VALUE
-#define BLOCK_SIZE 16
-#define BOARD_XPOS 560 //position from the left of the screen
-#define BOARD_YPOS 160 //position from top of the screen
+#define BLOCK_SIZE 24
+#define BOARD_XPOS 520 //position from the left of the screen
+#define BOARD_YPOS 80 //position from top of the screen
 #define BOARD_WIDTH 10 //in blocks
 #define BOARD_HEIGHT 20 //in blocks
 #define BOARD_LIMIT 30 //distance of top edge and bottom edge with the board
