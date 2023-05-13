@@ -16,11 +16,17 @@ Texture Background;
 Texture Main_Board;
 Texture Next_Piece;
 Texture Hold_Piece;
-Texture Score_Board;
+Texture Score_And_Level_Board;
 
 Texture Score;
+Texture End_Game_Score;
+Texture Level;
 
 Texture Game_Over;
+
+Mix_Music* Theme_Music = NULL;
+
+Mix_Chunk* Game_Audio[6] = {NULL};
 
 
 //Basic Initialization_____________________________________________________________________________________________
@@ -41,7 +47,7 @@ void draw_hold_piece(Game* game);
 
 void render_block(int value, int board_row, int board_col);
 
-void render_score(Game *game);
+void render_score_and_level(Game *game);
 
 //Logic_____________________________________________________________________________________________________________
 void update_game(Game* game, Game_input* input);
@@ -111,6 +117,13 @@ bool init()
 					success = false;
 				}
 
+                if( Mix_Init(MIX_INIT_MP3) < 0 )
+                {
+                    printf( "MP3 could not initialize! SDL Error: %s\n", SDL_GetError() );
+                    success = false;
+                }
+
+
 				 //Initialize SDL_mixer
 				if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
 				{
@@ -178,7 +191,7 @@ bool loadMedia()
         success = false;
     }
 
-    if(!Score_Board.loadFromFile(Score_Path, gRenderer))
+    if(!Score_And_Level_Board.loadFromFile(Score_And_Level_Path, gRenderer))
     {
         std::cout << "Cannot load Score image" << std::endl;
         success = false;
@@ -188,6 +201,21 @@ bool loadMedia()
     {
         std::cout << "Cannot load Game Over image" << std::endl;
         success = false;
+    }
+
+    Theme_Music = Mix_LoadMUS(Game_Music_Path.c_str());
+    if(Theme_Music == NULL)
+    {
+        std::cout << "Cannot load theme music" << std::endl;
+    }
+
+    for(int i = 0; i < 6; ++i)
+    {
+        Game_Audio[i] = Mix_LoadWAV(Game_Audio_Path[i].c_str());
+        if(Game_Audio[i] == NULL)
+        {
+            std::cout << "Cannot load sound effect[" << i << "]" << std::endl;
+        }
     }
 
     return success;
@@ -206,9 +234,21 @@ void close()
 
     Next_Piece.free();
     Hold_Piece.free();
-    Score_Board.free();
+    Score_And_Level_Board.free();
 
     Score.free();
+    Level.free();
+
+	//Free the music
+	Mix_FreeMusic( Theme_Music );
+	Theme_Music = NULL;
+
+    for(int i = 0; i < 6; ++i)
+    {
+        Mix_FreeChunk(Game_Audio[i]);
+        Game_Audio[i] = NULL;
+    }
+    Mix_CloseAudio();
 
     //Free global font
 	TTF_CloseFont( gFont );
@@ -229,6 +269,38 @@ void close()
 //Logic_____________________________________________________________________________________________________________
 void update_game(Game* game, Game_input* input)
 {
+    if(Mix_PlayingMusic() == 0 && input->S_key_status <= 0)
+    {
+        Mix_PlayMusic(Theme_Music, -1);
+    }
+    
+    if(input->S_key_status > 0)
+    {
+        if( Mix_PlayingMusic() == 0 )
+        {
+            //Play the music
+            Mix_PlayMusic( Theme_Music, -1 );
+        }
+        //If music is being played
+        else
+        {
+            //If the music is paused
+            if( Mix_PausedMusic() == 1 )
+            {
+                //Resume the music
+                Mix_ResumeMusic();
+            }
+            //If the music is playing
+            else
+            {
+                //Pause the music
+                Mix_PauseMusic();
+            }
+        }
+    }
+
+    Mix_VolumeMusic(MIX_MAX_VOLUME/2);
+    
     switch(game->status)
     {
     case GAME_PLAY:
@@ -252,21 +324,25 @@ void update_game_play(Game* game, Game_input* input)
     if(input->left_status > 0)
     {
         back_up.offset_col--;
+        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
     }
 
     if(input->right_status > 0)
     {
         back_up.offset_col++;
+        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
     }
 
     if(input->up_status > 0)
     {
         back_up.rotation = (back_up.rotation + 1) % 4;
+        Mix_PlayChannel(-1, Game_Audio[ROTATE], 0);
     }
 
     if(input->space_status > 0)
     {
         back_up = game->hold_piece;
+        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
     }
 
     if(game->check_piece_valid(&back_up))
@@ -289,21 +365,27 @@ void update_game_play(Game* game, Game_input* input)
     if(input->down_status > 0)
     {
         game->soft_drop();
+        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
     }
 
     if(input->enter_status > 0)
     {
-        while(game->soft_drop());
+        while(game->soft_drop())
+        {
+            Mix_PlayChannel(-1, Game_Audio[HARD_DROP], 0);
+        }
+
     }
 
     while(game->real_time >= game->next_drop_time)
     {
         game->soft_drop();
+        Mix_PlayChannel(-1, Game_Audio[DROP], 0);
     }
 
     if(game->check_rows_filled() > 0)
     {
-        game->current_cleared_lines = game->count_filled_lines() - 1;        
+        game->current_cleared_lines = game->check_rows_filled();        
         game->highlight_end_time = game->real_time + 0.2;
         game->status = GAME_HIGHLIGHT_LINE;         
     }
@@ -311,6 +393,7 @@ void update_game_play(Game* game, Game_input* input)
     if(game->is_over())
     {
         game->before_end_time = game->real_time + 0.5;
+        Mix_PlayChannel(-1, Game_Audio[GAME_OOPS], 0);
         game->status = GAME_OVER;
     }
 }
@@ -320,6 +403,7 @@ void update_game_line(Game *game)
     if(game->real_time >= game->highlight_end_time)
     {
         game->empty_rows_filled();
+        Mix_PlayChannel(-1, Game_Audio[LINE_CLEAR], 0);
         game->cleared_lines_count += game->current_cleared_lines;
 
         //if (game->cleared_lines_count >= game->get_lines_for_next_level() && game->level < 29) game->level++;
@@ -331,12 +415,16 @@ void update_game_line(Game *game)
 
 void update_game_over(Game *game)
 {
+    int current_point = game->point;
     if(game->real_time > game->before_end_time)
     {
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
         SDL_RenderClear(gRenderer);
         
         Game_Over.render(0, 0, gRenderer);
+
+        End_Game_Score.loadFromRenderedText(std::to_string(current_point), white, gRenderer, gFont);
+        End_Game_Score.render( (SCREEN_WIDTH * BLOCK_SIZE - End_Game_Score.getWidth()) / 2, (SCREEN_HEIGHT * BLOCK_SIZE) * 0.71, gRenderer);
 
         SDL_RenderPresent(gRenderer);
     }
@@ -355,6 +443,7 @@ void handle_keyboard(Game_input *input)
     input->down = key_states[SDL_SCANCODE_DOWN];
     input->enter = key_states[SDL_SCANCODE_RETURN];
     input->space = key_states[SDL_SCANCODE_SPACE];
+    input->S_key = key_states[SDL_SCANCODE_S];
 
     input->left_status = input->left - pre_input.left;
     input->right_status = input->right - pre_input.right;
@@ -362,6 +451,7 @@ void handle_keyboard(Game_input *input)
     input->down_status = input->down - pre_input.down;
     input->enter_status = input->enter - pre_input.enter;
     input->space_status = input->space - pre_input.space;
+    input->S_key_status = input->S_key - pre_input.S_key;
 }
 
 //Render____________________________________________________________________________________________________________
@@ -381,7 +471,7 @@ void render_game(Game* game)
 
     draw_piece(&game->piece);
 
-    render_score(game);
+    render_score_and_level(game);
 
     SDL_RenderPresent(gRenderer);
 }
@@ -394,7 +484,7 @@ void render_background()
     Next_Piece.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 + BLOCK_SIZE * 14, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2, gRenderer);
     Hold_Piece.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 + BLOCK_SIZE * 14, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2 + BLOCK_SIZE * 12, gRenderer);
     
-    Score_Board.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2, gRenderer);
+    Score_And_Level_Board.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2, gRenderer);
 }
 
 void render_board(Game *game)
@@ -465,21 +555,37 @@ void render_block(int value, int board_row, int board_col)
     Blocks[value].render( x, y, gRenderer);
 }
 
-void render_score(Game *game)
+void render_score_and_level(Game *game)
 {
     //Render text
     SDL_Color white = { 255, 255, 255 };
-    if( !Score.loadFromRenderedText( std::to_string(game->point), white, gRenderer, gFont ) )
+
+    int level_render = (game->level + 1);
+    
+    if( !Level.loadFromRenderedText( std::to_string(level_render), white, gRenderer, gFont ) )
     {
-        printf( "Failed to render score texture!\n" );
+        printf( "Failed to render level texture!\n" );
     }
     else
     {
         int x = (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10;
         int y = (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2;
 
-        Score.render( x + (150 - Score.getWidth()) / 2, y + (200 - Score.getHeight()) / 2, gRenderer);
+        Level.render( x + (150 - Level.getWidth()) / 2, y + (200 - Level.getHeight()) / 4, gRenderer);
     }
+
+    if( !Score.loadFromRenderedText( std::to_string(game->point), white, gRenderer, gFont ) )
+    {
+        printf( "Failed to render score texture!\n" );
+    }
+    else
+    {
+        int x1 = (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10;
+        int y1 = (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2;
+
+        Score.render( x1 + (150 - Score.getWidth()) / 2, y1 + (200 - Score.getHeight()) * 0.8, gRenderer);
+    }
+    
 }
 
 

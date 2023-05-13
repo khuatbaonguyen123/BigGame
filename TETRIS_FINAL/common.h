@@ -60,6 +60,16 @@ enum GAME_STATUS
         GAME_OVER
 };
 
+enum GAME_AUDIO
+{
+        DROP,
+        HARD_DROP,
+        LINE_CLEAR,
+        MOVE,
+        ROTATE,
+        GAME_OOPS
+};
+
 //input class for handling keyboard
 class Game_input {
 public:
@@ -70,6 +80,8 @@ public:
     int enter;
     int space;
 
+    int S_key;
+
     //while the value of status is greater than 0, it means they are pressed
     int left_status;
     int right_status;
@@ -77,6 +89,8 @@ public:
     int up_status;
     int enter_status;
     int space_status;
+
+    int S_key_status;
 
     //constructor
     Game_input()
@@ -88,12 +102,16 @@ public:
         enter = 0;
         space = 0;
 
+        S_key = 0;
+
         left_status = 0;
         right_status = 0;
         down_status = 0;
         up_status = 0;  
         enter_status = 0;
         space_status = 0;
+
+        S_key_status = 0;
     }
 };
 
@@ -187,9 +205,21 @@ const std::string Next_Piece_Path = "Images/Next_Piece.png";
 
 const std::string Hold_Piece_Path = "Images/Hold_Piece.png";
 
-const std::string Score_Path = "Images/Score.png";
+const std::string Score_And_Level_Path = "Images/Score_And_Level.png";
 
 const std::string Game_Over_Path = "Images/Over.png";
+
+const std::string Game_Music_Path = "Music/Waiting_For_Love.mp3";
+
+const std::string Game_Audio_Path[6] =
+{
+        "Music/SDL_Game_audio_Drop.wav",
+        "Music/SDL_Game_audio_hardDrop.wav",
+        "Music/SDL_Game_audio_Lineclear.wav",
+        "Music/SDL_Game_audio_Move.wav",
+        "Music/SDL_Game_audio_Rotate.wav",
+        "Music/SDL_Game_audio_Gameover.wav"
+};
 
 
 /***
