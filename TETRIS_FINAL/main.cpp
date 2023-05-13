@@ -17,10 +17,13 @@ Texture Main_Board;
 Texture Next_Piece;
 Texture Hold_Piece;
 Texture Score_And_Level_Board;
+Texture Record_Board;
 
 Texture Score;
 Texture End_Game_Score;
 Texture Level;
+Texture Setting_Icon;
+Texture Record;
 
 Texture Game_Over;
 
@@ -47,7 +50,7 @@ void draw_hold_piece(Game* game);
 
 void render_block(int value, int board_row, int board_col);
 
-void render_score_and_level(Game *game);
+void render_string_objects(Game *game);
 
 //Logic_____________________________________________________________________________________________________________
 void update_game(Game* game, Game_input* input);
@@ -197,9 +200,21 @@ bool loadMedia()
         success = false;
     }
 
+    if(!Record_Board.loadFromFile(Record_Board_Path, gRenderer))
+    {
+        std::cout << "Cannot load Record Board image" << std::endl;
+        success = false;
+    }
+
     if(!Game_Over.loadFromFile(Game_Over_Path, gRenderer))
     {
         std::cout << "Cannot load Game Over image" << std::endl;
+        success = false;
+    }
+
+    if(!Setting_Icon.loadFromFile(Setting_Icon_Path, gRenderer))
+    {
+        std::cout << "Cannot load Setting Icon Image" << std::endl;
         success = false;
     }
 
@@ -207,6 +222,7 @@ bool loadMedia()
     if(Theme_Music == NULL)
     {
         std::cout << "Cannot load theme music" << std::endl;
+        success = false;
     }
 
     for(int i = 0; i < 6; ++i)
@@ -215,6 +231,7 @@ bool loadMedia()
         if(Game_Audio[i] == NULL)
         {
             std::cout << "Cannot load sound effect[" << i << "]" << std::endl;
+            success = false;
         }
     }
 
@@ -231,13 +248,16 @@ void close()
 
     Background.free();
     Main_Board.free();
-
     Next_Piece.free();
     Hold_Piece.free();
     Score_And_Level_Board.free();
-
+    Record_Board.free();
     Score.free();
+    End_Game_Score.free();
     Level.free();
+    Setting_Icon.free();
+    Record.free();
+    Game_Over.free();
 
 	//Free the music
 	Mix_FreeMusic( Theme_Music );
@@ -300,6 +320,8 @@ void update_game(Game* game, Game_input* input)
     }
 
     Mix_VolumeMusic(MIX_MAX_VOLUME/2);
+
+    game->get_record();
     
     switch(game->status)
     {
@@ -415,7 +437,8 @@ void update_game_line(Game *game)
 
 void update_game_over(Game *game)
 {
-    int current_point = game->point;
+    long long int current_point = game->point;
+
     if(game->real_time > game->before_end_time)
     {
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
@@ -471,7 +494,7 @@ void render_game(Game* game)
 
     draw_piece(&game->piece);
 
-    render_score_and_level(game);
+    render_string_objects(game);
 
     SDL_RenderPresent(gRenderer);
 }
@@ -485,6 +508,9 @@ void render_background()
     Hold_Piece.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 + BLOCK_SIZE * 14, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2 + BLOCK_SIZE * 12, gRenderer);
     
     Score_And_Level_Board.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2, gRenderer);
+    Setting_Icon.render( 2.5 * BLOCK_SIZE, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2 + (BLOCK_SIZE * 3), gRenderer);
+    Record_Board.render( (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10, (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2 + BLOCK_SIZE * 12, gRenderer);
+
 }
 
 void render_board(Game *game)
@@ -555,12 +581,12 @@ void render_block(int value, int board_row, int board_col)
     Blocks[value].render( x, y, gRenderer);
 }
 
-void render_score_and_level(Game *game)
+void render_string_objects(Game *game)
 {
     //Render text
     SDL_Color white = { 255, 255, 255 };
 
-    int level_render = (game->level + 1);
+    int level_render = game->start_level + 1;
     
     if( !Level.loadFromRenderedText( std::to_string(level_render), white, gRenderer, gFont ) )
     {
@@ -584,6 +610,18 @@ void render_score_and_level(Game *game)
         int y1 = (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2;
 
         Score.render( x1 + (150 - Score.getWidth()) / 2, y1 + (200 - Score.getHeight()) * 0.8, gRenderer);
+    }
+
+    if( !Record.loadFromRenderedText( std::to_string(game->record_point), white, gRenderer, gFont ) )
+    {
+        printf( "Failed to render record texture!\n" );
+    }
+    else
+    {
+        int x2 = (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 - BLOCK_SIZE * 10;
+        int y2 = (SCREEN_HEIGHT * BLOCK_SIZE - VISIBLE_HEIGHT * BLOCK_SIZE) / 2 + BLOCK_SIZE * 12;
+
+        Record.render( x2 + (150 - Record.getWidth()) / 2, y2 + (200 - Record.getHeight()) / 2, gRenderer);
     }
     
 }

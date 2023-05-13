@@ -17,6 +17,7 @@ public:
     //Piece next_piece;
 
     long long int point;
+    long long int record_point;
 
     double real_time;
     double next_drop_time;
@@ -25,6 +26,7 @@ public:
 
     int level;
     int start_level;
+    int spawn_piece_count;
 
     int filled[BOARD_HEIGHT];
     int cleared_lines_count;
@@ -36,6 +38,7 @@ public:
 //logic of the game_____________________________________________________________________________________________________
 
     long long int calculate_game_point();
+    void get_record();
     bool is_over(); 
 
     int count_filled_lines();

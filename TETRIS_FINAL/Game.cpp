@@ -5,11 +5,13 @@ Game::Game()
     status = GAME_PLAY;
     level = 0;
     start_level = 0;
+    spawn_piece_count = 0;
 
     cleared_lines_count = 0;
     current_cleared_lines = 0;
 
     point = 0; 
+    record_point = 0;
 }
 
 long long int Game::calculate_game_point()
@@ -35,6 +37,38 @@ long long int Game::calculate_game_point()
     }
 
     return 0;
+}
+
+void Game::get_record()
+{
+    std::ifstream Record_File("Score.txt");
+
+    if(Record_File.is_open())
+    {
+        int record;
+
+        while(Record_File >> record);
+
+        Record_File.close();
+
+        record_point = record;
+
+        if(point > record_point)
+        {
+            std::ofstream File("Score.txt");
+            if(File.is_open())
+            {
+                File << point << std::endl;
+                record_point = point;
+            }
+
+            File.close();
+        }
+    }
+    else
+    {
+        std::cout << "Cannot open file" << std::endl;
+    }
 }
 
 bool Game::is_over()
@@ -163,6 +197,10 @@ void Game::spawn_new_piece()
 
     piece.offset_row = 0;
     piece.offset_col = BOARD_WIDTH / 2 - 1;
+
+    spawn_piece_count++;
+
+    level = spawn_piece_count / 10;
 }
 
 double Game::get_time_to_next_drop()

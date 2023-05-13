@@ -13,7 +13,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 #include <algorithm>
+#include <fstream>
 #include <sstream>
 #include <time.h>
 
@@ -55,6 +57,7 @@ const double DROP_FRAMES_PER_LEVEL[] = {
 //status of the game
 enum GAME_STATUS  
 {
+        GAME_ON_MENU,
         GAME_PLAY,
         GAME_HIGHLIGHT_LINE,
         GAME_OVER
@@ -209,7 +212,11 @@ const std::string Score_And_Level_Path = "Images/Score_And_Level.png";
 
 const std::string Game_Over_Path = "Images/Over.png";
 
-const std::string Game_Music_Path = "Music/Waiting_For_Love.mp3";
+const std::string Setting_Icon_Path = "Images/Setting_Icon.png";
+
+const std::string Record_Board_Path = "Images/Record.png";
+
+const std::string Game_Music_Path = "Music/Believer.mp3";
 
 const std::string Game_Audio_Path[6] =
 {
