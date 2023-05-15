@@ -58,6 +58,7 @@ const double DROP_FRAMES_PER_LEVEL[] = {
 enum GAME_STATUS  
 {
         GAME_ON_MENU,
+        GAME_ON_SETTING,
         GAME_PLAY,
         GAME_HIGHLIGHT_LINE,
         GAME_OVER
@@ -73,6 +74,19 @@ enum GAME_AUDIO
         GAME_OOPS
 };
 
+enum BUTTON
+{
+        LEVEL_1,
+        LEVEL_2,
+        LEVEL_3,
+        MUSIC_ON,
+        MUSIC_OFF,
+        AUDIO_ON,
+        AUDIO_OFF,
+        HOME_ICON,
+        PAUSE_ICON
+};
+
 //input class for handling keyboard
 class Game_input {
 public:
@@ -82,8 +96,8 @@ public:
     int down;
     int enter;
     int space;
-
-    int S_key;
+    
+    int A_key;
 
     //while the value of status is greater than 0, it means they are pressed
     int left_status;
@@ -93,7 +107,7 @@ public:
     int enter_status;
     int space_status;
 
-    int S_key_status;
+    int A_key_status;
 
     //constructor
     Game_input()
@@ -104,8 +118,8 @@ public:
         down = 0;
         enter = 0;
         space = 0;
-
-        S_key = 0;
+        
+        A_key = 0;
 
         left_status = 0;
         right_status = 0;
@@ -114,7 +128,7 @@ public:
         enter_status = 0;
         space_status = 0;
 
-        S_key_status = 0;
+        A_key_status = 0;
     }
 };
 
@@ -200,6 +214,19 @@ const std::string Piece_Path[7] = {
         "Images/L.png"      
 };
 
+const std::string Button_Path[9] =
+{
+        "Images/Level_1.png",
+        "Images/Level_2.png",
+        "Images/Level_3.png",
+        "Images/Music_On.png",
+        "Images/Music_Off.png",
+        "Images/Audio_On.png",
+        "Images/Audio_Off.png",
+        "Images/Home_Icon.png",
+        "Images/Pause_Icon.png"
+};
+
 const std::string Background_Path = "Images/Background.png";
 
 const std::string Main_Board_Path = "Images/Board.png";
@@ -216,7 +243,11 @@ const std::string Setting_Icon_Path = "Images/Setting_Icon.png";
 
 const std::string Record_Board_Path = "Images/Record.png";
 
-const std::string Game_Music_Path = "Music/Believer.mp3";
+const std::string Menu_Path = "Images/Menu.png";
+
+const std::string Setting_Background_Path = "Images/Setting_Background.png";
+
+const std::string Game_Music_Path = "Music/Cindrella_Snapped.mp3";
 
 const std::string Game_Audio_Path[6] =
 {

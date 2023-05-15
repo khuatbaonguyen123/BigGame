@@ -26,11 +26,24 @@ Texture Setting_Icon;
 Texture Record;
 
 Texture Game_Over;
+Texture Menu;
+
+Texture Setting_Background;
 
 Mix_Music* Theme_Music = NULL;
 
 Mix_Chunk* Game_Audio[6] = {NULL};
 
+//Non_texture LButton
+LButton Play;
+LButton Setting;
+LButton Quit;
+
+//Setting Page Buttons
+LButton Level_Button;
+LButton Audio;
+LButton Music;
+LButton Home_Icon;
 
 //Basic Initialization_____________________________________________________________________________________________
 bool init();
@@ -39,8 +52,9 @@ bool loadMedia();
 
 void close();
 
+
 //Render____________________________________________________________________________________________________________
-void render_game(const Game* game);
+void render_game_play(Game* game);
 
 void render_background();
 void render_board(Game *game);
@@ -50,19 +64,26 @@ void draw_hold_piece(Game* game);
 
 void render_block(int value, int board_row, int board_col);
 
-void render_string_objects(Game *game);
+void render_string_objects(Game *game); //score, level, record
 
 //Logic_____________________________________________________________________________________________________________
 void update_game(Game* game, Game_input* input);
+
+void update_game_menu(Game* game, Game_input* input);
+
+void update_game_setting(Game* game);
 
 void update_game_play(Game* game, Game_input* input);
 
 void update_game_line(Game *game);
 
-void update_game_over(Game *game);
+void update_game_over(Game *game, Game_input *input);
 
 void handle_keyboard(Game_input *input);
 
+void handle_button(Game* game, SDL_Event* e);
+
+void setting_button_set_up(Game* game);
 
 //Basic Initialization_____________________________________________________________________________________________
 bool init()
@@ -218,6 +239,18 @@ bool loadMedia()
         success = false;
     }
 
+    if(!Menu.loadFromFile(Menu_Path, gRenderer))
+    {
+        std::cout << "Cannot load Menu image" << std::endl;
+        success = false;
+    }
+
+    if(!Setting_Background.loadFromFile(Setting_Background_Path, gRenderer))
+    {
+        std::cout << "Cannot load Setting Background image" << std::endl;
+        success = false; 
+    }
+
     Theme_Music = Mix_LoadMUS(Game_Music_Path.c_str());
     if(Theme_Music == NULL)
     {
@@ -258,6 +291,8 @@ void close()
     Setting_Icon.free();
     Record.free();
     Game_Over.free();
+    Menu.free();
+    Setting_Background.free();
 
 	//Free the music
 	Mix_FreeMusic( Theme_Music );
@@ -289,42 +324,38 @@ void close()
 //Logic_____________________________________________________________________________________________________________
 void update_game(Game* game, Game_input* input)
 {
-    if(Mix_PlayingMusic() == 0 && input->S_key_status <= 0)
-    {
-        Mix_PlayMusic(Theme_Music, -1);
-    }
-    
-    if(input->S_key_status > 0)
-    {
-        if( Mix_PlayingMusic() == 0 )
-        {
-            //Play the music
-            Mix_PlayMusic( Theme_Music, -1 );
-        }
-        //If music is being played
-        else
-        {
-            //If the music is paused
-            if( Mix_PausedMusic() == 1 )
-            {
-                //Resume the music
-                Mix_ResumeMusic();
-            }
-            //If the music is playing
-            else
-            {
-                //Pause the music
-                Mix_PauseMusic();
-            }
-        }
-    }
+    handle_keyboard(input);
 
-    Mix_VolumeMusic(MIX_MAX_VOLUME/2);
+    if(game->music_on)
+    {
+        if(Mix_PlayingMusic() == 0)
+        {
+            Mix_PlayMusic(Theme_Music, -1);
+        }
+        else if(Mix_PausedMusic() == 1)
+        {
+            Mix_ResumeMusic();
+        }
+
+        Mix_VolumeMusic(MIX_MAX_VOLUME/2);
+    }
+    else
+    {
+        Mix_PauseMusic();
+    }
 
     game->get_record();
     
     switch(game->status)
     {
+    case GAME_ON_MENU:
+        update_game_menu(game, input);
+        break;
+
+    case GAME_ON_SETTING:
+        update_game_setting(game);
+        break;
+    
     case GAME_PLAY:
         update_game_play(game, input);
         break;
@@ -334,89 +365,176 @@ void update_game(Game* game, Game_input* input)
         break;
 
     case GAME_OVER:
-        update_game_over(game);
+        update_game_over(game, input);
         break;
+    }
+}
+
+void update_game_menu(Game* game, Game_input* input)
+{
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(gRenderer);
+    
+    Menu.render(0, 0, gRenderer);
+
+    SDL_RenderPresent(gRenderer);
+
+    Play.set_button_without_texture(704, 275, 234, 75);
+    Setting.set_button_without_texture(606, 381, 429, 75);
+    Quit.set_button_without_texture(704, 487, 234, 75);
+
+    if(Play.be_clicked())
+    {        
+        game->before_start_time = game->real_time + 0.2;
+        game->reset();
+        game->status = GAME_PLAY;
+    }
+
+    if(Setting.be_clicked())
+    {
+        game->before_start_time = game->real_time + 0.2;
+        game->status = GAME_ON_SETTING;
+    }
+
+    if(Quit.be_clicked())
+    {
+        game->game_quit = true;
+    }
+
+    Play.update_button_status();
+    Setting.update_button_status();
+    Quit.update_button_status();
+    
+}
+
+void update_game_setting(Game *game)
+{
+    if(game->real_time > game->before_start_time)
+    {
+        SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(gRenderer);
+
+        Setting_Background.render(0, 0, gRenderer);
+
+        setting_button_set_up(game);
+
+        Level_Button.render(gRenderer);
+        Music.render(gRenderer);
+        Audio.render(gRenderer);
+        Home_Icon.render(gRenderer);
+
+        SDL_RenderPresent(gRenderer);
+
     }
 }
 
 void update_game_play(Game* game, Game_input* input)
 {
-    Piece back_up = game->piece;
-
-    if(input->left_status > 0)
+    if(game->real_time > game->before_start_time)
     {
-        back_up.offset_col--;
-        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
-    }
+        Piece back_up = game->piece;
 
-    if(input->right_status > 0)
-    {
-        back_up.offset_col++;
-        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
-    }
+        if(input->left_status > 0)
+        {
+            back_up.offset_col--;
+            if(game->audio_on)
+            {
+                Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
+            }
+        }
 
-    if(input->up_status > 0)
-    {
-        back_up.rotation = (back_up.rotation + 1) % 4;
-        Mix_PlayChannel(-1, Game_Audio[ROTATE], 0);
-    }
+        if(input->right_status > 0)
+        {
+            back_up.offset_col++;
+            if(game->audio_on)
+            {
+                Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
+            }
+        }
 
-    if(input->space_status > 0)
-    {
-        back_up = game->hold_piece;
-        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
-    }
+        if(input->up_status > 0)
+        {
+            back_up.rotation = (back_up.rotation + 1) % 4;
+            if(game->audio_on)
+            {
+                Mix_PlayChannel(-1, Game_Audio[ROTATE], 0);
+            }
+        }
 
-    if(game->check_piece_valid(&back_up))
-    {
         if(input->space_status > 0)
         {
-            if(game->hold_piece.tetrimino_index == -1)
+            back_up = game->hold_piece;
+             if(game->audio_on)
             {
-                back_up.tetrimino_index = game->pick_a_random_number_for_next_piece();
+                Mix_PlayChannel(-1, Game_Audio[ROTATE], 0);
             }
-            game->hold_piece = game->piece;
-
-            back_up.offset_col = game->piece.offset_col;
-            back_up.offset_row = game->piece.offset_row;
         }
 
-        game->piece = back_up;
-    }
-
-    if(input->down_status > 0)
-    {
-        game->soft_drop();
-        Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
-    }
-
-    if(input->enter_status > 0)
-    {
-        while(game->soft_drop())
+        if(game->check_piece_valid(&back_up))
         {
-            Mix_PlayChannel(-1, Game_Audio[HARD_DROP], 0);
+            if(input->space_status > 0)
+            {
+                if(game->hold_piece.tetrimino_index == -1)
+                {
+                    back_up.tetrimino_index = game->pick_a_random_number_for_next_piece();
+                }
+                game->hold_piece = game->piece;
+
+                back_up.offset_col = game->piece.offset_col;
+                back_up.offset_row = game->piece.offset_row;
+            }
+
+            game->piece = back_up;
         }
 
-    }
+        if(input->down_status > 0)
+        {
+            game->soft_drop();
+            if(game->audio_on)
+            {
+                Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
+            }
+        }
 
-    while(game->real_time >= game->next_drop_time)
-    {
-        game->soft_drop();
-        Mix_PlayChannel(-1, Game_Audio[DROP], 0);
-    }
+        if(input->enter_status > 0)
+        {
+            while(game->soft_drop())
+            {
+                if(game->audio_on)
+                {
+                    Mix_PlayChannel(-1, Game_Audio[DROP], 0);
+                }
+            }
 
-    if(game->check_rows_filled() > 0)
-    {
-        game->current_cleared_lines = game->check_rows_filled();        
-        game->highlight_end_time = game->real_time + 0.2;
-        game->status = GAME_HIGHLIGHT_LINE;         
-    }
+        }
 
-    if(game->is_over())
-    {
-        game->before_end_time = game->real_time + 0.5;
-        Mix_PlayChannel(-1, Game_Audio[GAME_OOPS], 0);
-        game->status = GAME_OVER;
+        while(game->real_time >= game->next_drop_time)
+        {
+            game->soft_drop();
+            if(game->audio_on)
+            {
+                Mix_PlayChannel(-1, Game_Audio[DROP], 0);
+            }
+        }
+
+        if(game->check_rows_filled() > 0)
+        {
+            game->current_cleared_lines = game->check_rows_filled();        
+            game->highlight_end_time = game->real_time + 0.2;
+            game->status = GAME_HIGHLIGHT_LINE;         
+        }
+
+        if(game->is_over())
+        {
+            game->before_end_time = game->real_time + 0.5;
+            if(game->audio_on)
+            {
+                Mix_PlayChannel(-1, Game_Audio[GAME_OOPS], 0);
+            }
+            game->status = GAME_OVER;
+        }
+
+        render_game_play(game);
     }
 }
 
@@ -435,7 +553,7 @@ void update_game_line(Game *game)
     }
 }
 
-void update_game_over(Game *game)
+void update_game_over(Game *game, Game_input *input)
 {
     long long int current_point = game->point;
 
@@ -450,6 +568,11 @@ void update_game_over(Game *game)
         End_Game_Score.render( (SCREEN_WIDTH * BLOCK_SIZE - End_Game_Score.getWidth()) / 2, (SCREEN_HEIGHT * BLOCK_SIZE) * 0.71, gRenderer);
 
         SDL_RenderPresent(gRenderer);
+    }
+
+    if(input->A_key_status > 0)
+    {
+        game->status = GAME_ON_MENU;
     }
 }
 
@@ -466,7 +589,7 @@ void handle_keyboard(Game_input *input)
     input->down = key_states[SDL_SCANCODE_DOWN];
     input->enter = key_states[SDL_SCANCODE_RETURN];
     input->space = key_states[SDL_SCANCODE_SPACE];
-    input->S_key = key_states[SDL_SCANCODE_S];
+    input->A_key = key_states[SDL_SCANCODE_A];
 
     input->left_status = input->left - pre_input.left;
     input->right_status = input->right - pre_input.right;
@@ -474,12 +597,113 @@ void handle_keyboard(Game_input *input)
     input->down_status = input->down - pre_input.down;
     input->enter_status = input->enter - pre_input.enter;
     input->space_status = input->space - pre_input.space;
-    input->S_key_status = input->S_key - pre_input.S_key;
+    input->A_key_status = input->A_key - pre_input.A_key;
+}
+
+void handle_button(Game* game, SDL_Event* e)
+{
+    if(game->status == GAME_ON_MENU)
+    {
+        Play.handleEvent(e);
+        Setting.handleEvent(e);
+        Quit.handleEvent(e);
+    }
+
+    if(game->status == GAME_ON_SETTING)
+    {
+        Level_Button.handleEvent(e);
+        Music.handleEvent(e);
+        Audio.handleEvent(e);
+        Home_Icon.handleEvent(e);
+
+    }
+}
+
+void setting_button_set_up(Game* game)
+{
+    if(Level_Button.be_clicked())
+    {
+        game->start_level = (game->start_level + 1) % 3;
+    }
+    
+    switch(game->start_level)
+    {
+    case 0:
+        Level_Button.set_up(Button_Path[LEVEL_1], 420, 169, gRenderer);
+        break;
+    
+    case 1:
+        Level_Button.set_up(Button_Path[LEVEL_2], 420, 169, gRenderer);
+        break;
+
+    case 2:
+        Level_Button.set_up(Button_Path[LEVEL_3], 420, 169, gRenderer);
+        break;
+    }
+
+    if(Music.be_clicked())
+    {
+        if(game->music_on)
+        {
+            game->music_on = false;
+        }
+        else
+        {
+            game->music_on = true;
+        }
+    }
+
+    switch(game->music_on)
+    {
+    case true:
+        Music.set_up(Button_Path[MUSIC_ON], 398, 248, gRenderer);
+        break;
+    case false:
+        Music.set_up(Button_Path[MUSIC_OFF], 398, 248, gRenderer);
+        break;
+    }
+    
+    if(Audio.be_clicked())
+    {
+        if(game->audio_on)
+        {
+            game->audio_on = false;
+        }
+        else
+        {
+            game->audio_on = true;
+        }
+    }
+
+    switch(game->audio_on)
+    {
+    case true:
+        Audio.set_up(Button_Path[AUDIO_ON], 398, 323, gRenderer);
+        break;
+    case false:
+        Audio.set_up(Button_Path[AUDIO_OFF], 398, 323, gRenderer);
+        break;
+    }
+
+
+
+    Home_Icon.set_up(Button_Path[HOME_ICON], 510, 396, gRenderer);
+
+    if(Home_Icon.be_clicked())
+    {
+        game->status = GAME_ON_MENU;
+    }
+
+    Level_Button.update_button_status();
+    Music.update_button_status();
+    Audio.update_button_status();
+    Home_Icon.update_button_status();
+
 }
 
 //Render____________________________________________________________________________________________________________
 
-void render_game(Game* game)
+void render_game_play(Game* game)
 {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
@@ -632,7 +856,7 @@ int main(int argc, char* args[])
     
     Game game = {};
 
-    game.spawn_new_piece();
+    //game.spawn_new_piece();
 
     Game_input input = {};
 
@@ -650,30 +874,24 @@ int main(int argc, char* args[])
         {
             SDL_Event e;
 
-            bool quit = false;
 
-            while(!quit)
+            while(!game.game_quit)
             {
                 while(SDL_PollEvent(&e) != 0)
                 {
                     if(e.type == SDL_QUIT)
                     {
-                        quit = true;
+                        game.game_quit = true;
                     }
+
+                    handle_button(&game, &e);
                 }
 
                 game.real_time = SDL_GetTicks() / 1000.0f;
 
-                handle_keyboard(&input);
+                //handle_keyboard(&input);
 
                 update_game(&game, &input);
-
-                if(game.is_over())
-                {
-                    continue;
-                }
-
-                render_game(&game);
 
             }
         }

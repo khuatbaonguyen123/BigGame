@@ -2,7 +2,7 @@
 
 Game::Game()
 {
-    status = GAME_PLAY;
+    status = GAME_ON_MENU;
     level = 0;
     start_level = 0;
     spawn_piece_count = 0;
@@ -12,6 +12,33 @@ Game::Game()
 
     point = 0; 
     record_point = 0;
+
+    music_on = true;
+    audio_on = true;
+
+    game_quit = false;
+}
+
+void Game::reset()
+{
+    level = 0;
+    start_level = 0;
+    spawn_piece_count = 0;
+
+    cleared_lines_count = 0;
+    current_cleared_lines = 0;
+
+    point = 0; 
+    //record_point = 0;
+
+    for(int i = 0; i < BOARD_WIDTH * BOARD_HEIGHT; ++i)
+    {
+        board[i] = 0;
+    }
+
+    spawn_new_piece();
+
+    hold_piece.tetrimino_index = -1;
 }
 
 long long int Game::calculate_game_point()
@@ -185,6 +212,7 @@ void Game::merge_piece_to_board()
 void Game::spawn_new_piece()
 {
     if(next_piece.tetrimino_index == -1) {
+        srand ((unsigned int) time(NULL));
         int random_piece = get_random_number(0,6);
         piece.tetrimino_index = random_piece;
         next_piece.tetrimino_index = pick_a_random_number_for_next_piece();

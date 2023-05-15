@@ -4,6 +4,7 @@
 #include "Piece.h"
 #include "Tetrimino.h"
 #include "Texture.h"
+#include "LButton.h"
 
 class Game
 {
@@ -23,6 +24,7 @@ public:
     double next_drop_time;
     double highlight_end_time;
     double before_end_time;
+    double before_start_time;
 
     int level;
     int start_level;
@@ -32,6 +34,10 @@ public:
     int cleared_lines_count;
     int current_cleared_lines;
 
+    bool audio_on;
+    bool music_on;
+    bool game_quit;
+
 //constructor___________________________________________________________________________________________________________
     Game();
 
@@ -40,6 +46,7 @@ public:
     long long int calculate_game_point();
     void get_record();
     bool is_over(); 
+    void reset();
 
     int count_filled_lines();
     //int get_lines_for_next_level();
