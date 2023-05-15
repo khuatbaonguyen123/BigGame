@@ -60,6 +60,7 @@ enum GAME_STATUS
         GAME_ON_MENU,
         GAME_ON_SETTING,
         GAME_PLAY,
+        GAME_ON_PAUSE,
         GAME_HIGHLIGHT_LINE,
         GAME_OVER
 };
@@ -84,7 +85,8 @@ enum BUTTON
         AUDIO_ON,
         AUDIO_OFF,
         HOME_ICON,
-        PAUSE_ICON
+        PAUSE_ICON,
+        PLAY_AGAIN
 };
 
 //input class for handling keyboard
@@ -96,8 +98,6 @@ public:
     int down;
     int enter;
     int space;
-    
-    int A_key;
 
     //while the value of status is greater than 0, it means they are pressed
     int left_status;
@@ -106,8 +106,6 @@ public:
     int up_status;
     int enter_status;
     int space_status;
-
-    int A_key_status;
 
     //constructor
     Game_input()
@@ -119,7 +117,6 @@ public:
         enter = 0;
         space = 0;
         
-        A_key = 0;
 
         left_status = 0;
         right_status = 0;
@@ -128,7 +125,6 @@ public:
         enter_status = 0;
         space_status = 0;
 
-        A_key_status = 0;
     }
 };
 
@@ -214,7 +210,7 @@ const std::string Piece_Path[7] = {
         "Images/L.png"      
 };
 
-const std::string Button_Path[9] =
+const std::string Button_Path[10] =
 {
         "Images/Level_1.png",
         "Images/Level_2.png",
@@ -224,7 +220,8 @@ const std::string Button_Path[9] =
         "Images/Audio_On.png",
         "Images/Audio_Off.png",
         "Images/Home_Icon.png",
-        "Images/Pause_Icon.png"
+        "Images/Pause_Icon.png",
+        "Images/Play_Again.png"
 };
 
 const std::string Background_Path = "Images/Background.png";
@@ -239,13 +236,13 @@ const std::string Score_And_Level_Path = "Images/Score_And_Level.png";
 
 const std::string Game_Over_Path = "Images/Over.png";
 
-const std::string Setting_Icon_Path = "Images/Setting_Icon.png";
-
 const std::string Record_Board_Path = "Images/Record.png";
 
 const std::string Menu_Path = "Images/Menu.png";
 
 const std::string Setting_Background_Path = "Images/Setting_Background.png";
+
+const std::string Game_Pause_Background_Path = "Images/Game_Pause_Background.png";
 
 const std::string Game_Music_Path = "Music/Cindrella_Snapped.mp3";
 

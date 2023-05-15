@@ -22,7 +22,6 @@ Game::Game()
 void Game::reset()
 {
     level = 0;
-    start_level = 0;
     spawn_piece_count = 0;
 
     cleared_lines_count = 0;
@@ -226,6 +225,8 @@ void Game::spawn_new_piece()
     piece.offset_row = 0;
     piece.offset_col = BOARD_WIDTH / 2 - 1;
 
+    get_pieces_for_each_level();
+
     spawn_piece_count++;
 
     level = spawn_piece_count / 10;
@@ -292,16 +293,39 @@ int Game::check_rows_filled() {
     return filled_line_count;
 }
 
+void Game::get_pieces_for_each_level()
+{
+    switch(start_level)
+    {
+    case 0:
+        if(spawn_piece_count > 60)
+        {
+            spawn_piece_count = 60;
+        }
+        break;
+    
+    case 1:
+        if(spawn_piece_count < 60)
+        {
+            spawn_piece_count = 60;
+        }
 
+        if(spawn_piece_count > 140)
+        {
+            spawn_piece_count = 140;
+        }
+        break;
 
+    case 2: 
+        if(spawn_piece_count < 140)
+        {
+            spawn_piece_count = 140;
+        }
 
-// int Game::get_lines_for_next_level()
-// {
-//     int temp = max(10 * start_level - 50, 100);
-//     int first_level_up = min(start_level * 10 + 10,
-//                                   temp);
-//     if(level == start_level) return first_level_up;
-
-//     int next_level_up = (level - start_level) * 10 + first_level_up;
-//     return next_level_up;
-// }
+        if(spawn_piece_count > 290)
+        {
+            spawn_piece_count = 290;
+        }
+        break;
+    }
+}

@@ -59,7 +59,9 @@ public:
     double get_time_to_next_drop();
 
     void empty_rows_filled();
-    int check_rows_filled();   
+    int check_rows_filled(); 
+
+    void get_pieces_for_each_level();  
 
 };
 

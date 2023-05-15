@@ -121,4 +121,8 @@ int LButton::get_button_height()
 void LButton::free()
 {
     Button_Image.free();
+    mPosition.x = 0;
+    mPosition.y = 0;
+    BUTTON_WIDTH = 0;
+    BUTTON_HEIGHT = 0;
 }
