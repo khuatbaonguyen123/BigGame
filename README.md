@@ -3,8 +3,7 @@
 > Khuất Bảo Nguyên - MSV: 22026508
 
 ## Cài đặt
-> - Clone folder git về
-> - Cài đặt thư viện SDL2 và VS Code để chạy file main.exe và chơi
+> - Tải file rar về, extract files và click vào file main.exe để chơi
 
 ## Ý tưởng/Mô tả trò chơi
 ### 1. Giới thiệu
@@ -63,7 +62,7 @@ Là một học sinh chuyên Anh hồi cấp 3 và không có một chút nền 
 
 ## Các kỹ thuật sử dụng
 - Render hình ảnh, phát âm thanh, quản lý chuột, bàn phím, thời gian (SDL)
-- Sử dụng class, pointer, random, mảng ...
+- Sử dụng class, pointer, random, mảng, file ...
 - Phân chia các object thành từng file để dàng vận hành và quản lý
 - Thuật toán xoay khối gạch, xử lý va chạm,...
 
