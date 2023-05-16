@@ -73,6 +73,6 @@ Là một học sinh chuyên Anh hồi cấp 3 và không có một chút nền 
 
 ### Tài liệu tham khảo:
 - [Lazyfoo](https://lazyfoo.net/): SDL2 Tutorial
-- [Video tutorial hướng dẫn làm game Tetris](https://- www.youtube.com/watch?v=kh3rkt6nZ2c&t=5883s): Em tham khảo các thuật toán chính về logic game ở đây và các source code github về tetris
+- [Video tutorial hướng dẫn làm game Tetris](https://www.youtube.com/watch?v=kh3rkt6nZ2c&t=5883s): Em tham khảo các thuật toán chính về logic game ở đây và các source code github về tetris
 - Nguồn hình ảnh: Em des ở Canva và lấy các icon từ [flaticon](https://www.flaticon.com/)
 - Âm thanh: Em lấy nhạc từ [Youtube](https://www.youtube.com/?gl=VN) và sound effects từ nhiều nguồn trên mạng.
