@@ -13,6 +13,7 @@ public:
     int board[BOARD_WIDTH * BOARD_HEIGHT] = {0};
     GAME_STATUS status;
     Piece piece;
+    Piece empty_piece;
     Piece next_piece;
     Piece hold_piece;
     //Piece next_piece;

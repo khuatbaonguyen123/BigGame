@@ -135,8 +135,9 @@ int Game::pick_a_random_number_for_next_piece()
     srand ((unsigned int) time(NULL));
     int result = get_random_number(0,6);
     if( result == index)
+    {
         result = ( result + get_random_number(0,6) ) % 7;
-
+    }
     return result;
 }
 
@@ -224,6 +225,8 @@ void Game::spawn_new_piece()
 
     piece.offset_row = 0;
     piece.offset_col = BOARD_WIDTH / 2 - 1;
+
+    empty_piece = piece;
 
     get_pieces_for_each_level();
 

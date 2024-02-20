@@ -10,7 +10,7 @@ public:
         return value of data's element
     ***/
     int tetrimino_get( const int& row, const int& col,
-                        const int &rotation) const;
+                        const int &rotation);
 
     //desturtor
     ~Tetrimino();

@@ -11,6 +11,7 @@ TTF_Font *gFont = NULL;
 
 Texture Blocks[7];
 Texture Full_Piece[7];
+Texture Tile_Empty;
 
 Texture Background;
 Texture Main_Board;
@@ -63,10 +64,11 @@ void render_game_play(Game* game);
 void render_background();
 void render_board(Game *game);
 void draw_piece(Piece *piece);
+void draw_empty_piece(Piece* piece);
 void draw_next_piece(Game* game);
 void draw_hold_piece(Game* game);
 
-void render_block(int value, int board_row, int board_col);
+void render_block(int value, int board_row, int board_col, bool empty);
 
 void render_string_objects(Game *game); //score, level, record
 
@@ -198,6 +200,12 @@ bool loadMedia()
         }
     }
 
+    if(!Tile_Empty.loadFromFile("Images/TileEmpty.png", gRenderer))
+    {
+        std::cout << "Cannot load Tile Empty Image" << std::endl;
+        success = false;
+    }
+
     if(!Background.loadFromFile(Background_Path, gRenderer))
     {
         std::cout << "Cannot load Background image" << std::endl;
@@ -285,6 +293,8 @@ void close()
         Blocks[i].free();
         Full_Piece[i].free();
     }
+
+    Tile_Empty.free();
 
     Background.free();
     Main_Board.free();
@@ -504,6 +514,13 @@ void update_game_play(Game* game, Game_input* input)
             }
 
             game->piece = back_up;
+            game->empty_piece = game->piece;
+            
+            while(game->check_piece_valid(&game->empty_piece))
+            {
+                game->empty_piece.offset_row++;
+            }
+            game->empty_piece.offset_row--;
         }
 
         if(input->down_status > 0)
@@ -513,6 +530,12 @@ void update_game_play(Game* game, Game_input* input)
             {
                 Mix_PlayChannel(-1, Game_Audio[MOVE], 0);
             }
+            game->empty_piece = game->piece;
+            while(game->check_piece_valid(&game->empty_piece))
+            {
+                game->empty_piece.offset_row++;
+            }
+            game->empty_piece.offset_row--;
         }
 
         if(input->enter_status > 0)
@@ -548,6 +571,11 @@ void update_game_play(Game* game, Game_input* input)
         if(Pause_Icon.be_clicked())
         {
             game->status = GAME_ON_PAUSE;
+        }
+
+        if(input->A_status > 0)
+        {
+            game->reset();
         }
 
         Pause_Icon.update_button_status();
@@ -667,8 +695,6 @@ void update_game_line(Game *game)
         }
         game->cleared_lines_count += game->current_cleared_lines;
 
-        //if (game->cleared_lines_count >= game->get_lines_for_next_level() && game->level < 29) game->level++;
-
         game->point += game->calculate_game_point();
         game->status = GAME_PLAY;
     }
@@ -728,6 +754,7 @@ void handle_keyboard(Game_input *input)
     input->down = key_states[SDL_SCANCODE_DOWN];
     input->enter = key_states[SDL_SCANCODE_RETURN];
     input->space = key_states[SDL_SCANCODE_SPACE];
+    input->A = key_states[SDL_SCANCODE_A];
 
     input->left_status = input->left - pre_input.left;
     input->right_status = input->right - pre_input.right;
@@ -735,6 +762,7 @@ void handle_keyboard(Game_input *input)
     input->down_status = input->down - pre_input.down;
     input->enter_status = input->enter - pre_input.enter;
     input->space_status = input->space - pre_input.space;
+    input->A_status = input->A - pre_input.A;
 }
 
 void handle_button(Game* game, SDL_Event* e)
@@ -877,6 +905,10 @@ void render_game_play(Game* game)
 
     draw_piece(&game->piece);
 
+    if(game->empty_piece.offset_row != game->piece.offset_row && game->empty_piece.offset_row != game->piece.offset_row + 1)
+    {
+        draw_empty_piece(&game->empty_piece);
+    }
     render_string_objects(game);
 
     Pause_Icon.render(gRenderer);
@@ -906,7 +938,7 @@ void render_board(Game *game)
 
             if(value > 0)
             {
-                render_block(value - 1, i, j);
+                render_block(value - 1, i, j, false);
             }
         }
     }
@@ -928,9 +960,29 @@ void draw_piece(Piece *piece)
                 {
                     if(piece->offset_row + i >= BOARD_HEIGHT - VISIBLE_HEIGHT)
                     {
-                        render_block(piece->tetrimino_index, piece->offset_row + i, piece->offset_col + j);
+                        render_block(piece->tetrimino_index, piece->offset_row + i, piece->offset_col + j, false);
                     }
                 }
+            }
+        }
+    }
+}
+
+void draw_empty_piece(Piece* piece)
+{
+    Tetrimino tetrimino = TETRIMINOS[piece->tetrimino_index];
+
+    for(int i = 0; i < tetrimino.side; ++i)
+    {
+        for(int j = 0; j < tetrimino.side; ++j)
+        {
+            int value = tetrimino.tetrimino_get(i, j, piece->rotation);
+
+            if(value > 0)
+            {              
+                
+                render_block(piece->tetrimino_index, piece->offset_row + i, piece->offset_col + j, true);                    
+                
             }
         }
     }
@@ -956,12 +1008,20 @@ void draw_hold_piece(Game* game)
     Full_Piece[index].render(x + (150 - Full_Piece[index].getWidth()) / 2, y + (200 - Full_Piece[index].getHeight()) / 2, gRenderer);
 }
 
-void render_block(int value, int board_row, int board_col)
+void render_block(int value, int board_row, int board_col, bool empty)
 {
+    
     int x = (SCREEN_WIDTH * BLOCK_SIZE - BOARD_WIDTH * BLOCK_SIZE) / 2 + (board_col * BLOCK_SIZE);
     int y = (SCREEN_HEIGHT * BLOCK_SIZE - BOARD_HEIGHT * BLOCK_SIZE) / 2 + ( (board_row - 1) * BLOCK_SIZE);
 
-    Blocks[value].render( x, y, gRenderer);
+    if(!empty)
+    {
+        Blocks[value].render( x, y, gRenderer);
+    }
+    else
+    {
+        Tile_Empty.render(x, y, gRenderer);
+    }
 }
 
 void render_string_objects(Game *game)
@@ -1046,7 +1106,7 @@ int main(int argc, char* args[])
                     handle_button(&game, &e);
                 }
 
-                game.real_time = SDL_GetTicks() / 1000.0f;
+                game.real_time = SDL_GetTicks() / 1000.0;
 
                 //handle_keyboard(&input);
 

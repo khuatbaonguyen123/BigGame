@@ -6,8 +6,10 @@
     rotation: status of the piece
 ***/
 int Tetrimino::tetrimino_get(const int &row, const int &col,
-                              const int &rotation) const {
-    switch(rotation) {
+                              const int &rotation)
+{
+    switch(rotation) 
+    {
         case 0:
             return data[side * row + col];
         case 1:

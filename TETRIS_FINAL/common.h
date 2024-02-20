@@ -99,6 +99,8 @@ public:
     int enter;
     int space;
 
+    int A;
+
     //while the value of status is greater than 0, it means they are pressed
     int left_status;
     int right_status;
@@ -106,6 +108,8 @@ public:
     int up_status;
     int enter_status;
     int space_status;
+
+    int A_status;
 
     //constructor
     Game_input()
@@ -116,6 +120,8 @@ public:
         down = 0;
         enter = 0;
         space = 0;
+
+        A = 0;
         
 
         left_status = 0;
@@ -124,6 +130,8 @@ public:
         up_status = 0;  
         enter_status = 0;
         space_status = 0;
+
+        A_status = 0;
 
     }
 };
@@ -181,7 +189,7 @@ const Tetrimino TETRIMINOS[] = {
         tetrimino(TETRIMINO_4,3),
         tetrimino(TETRIMINO_5,3),
         tetrimino(TETRIMINO_6,3),
-        tetrimino(TETRIMINO_7,3),
+        tetrimino(TETRIMINO_7,3)
 };
 
 
@@ -244,7 +252,7 @@ const std::string Setting_Background_Path = "Images/Setting_Background.png";
 
 const std::string Game_Pause_Background_Path = "Images/Game_Pause_Background.png";
 
-const std::string Game_Music_Path = "Music/Cindrella_Snapped.mp3";
+const std::string Game_Music_Path = "Music/Numb_Little_Bug.mp3";
 
 const std::string Game_Audio_Path[6] =
 {
