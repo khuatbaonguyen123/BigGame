@@ -1,5 +1,5 @@
 # TETRIS SDL2
-> Course Project: Advanced Programming Techniques (INT2215 1) Group 6
+> Course LTNC (INT2215 1) Group 6
 > Khuất Bảo Nguyên - Student ID: 22026508
 
 ## Installation
