@@ -1,78 +1,89 @@
 # TETRIS SDL2
-> Bài tập môn LTNC INT2215 1 Nhóm 6
-> Khuất Bảo Nguyên - MSV: 22026508
+> Course Project: Advanced Programming Techniques (INT2215 1) Group 6
+> Khuất Bảo Nguyên - Student ID: 22026508
 
-## Cài đặt
-> - Tải file rar về, extract files và click vào file main.exe để chơi
+## Installation
+> - Download the .rar file, extract the files, and click on main.exe to play.
 
-## Ý tưởng/Mô tả trò chơi
-### 1. Giới thiệu
+## Game Concept/Description
+### 1. Introduction
 
-- Tetris là trò chơi xếp các khối gạch, người chơi sẽ cố gắng xếp đầy các viên gạch vào 1 hàng để xóa chúng đi.
-- Trò chơi không hẳn có thắng thua mà chỉ tính điểm của người chơi, khi game over sẽ hiện điểm người chơi.
-### 2. Cách chơi
+- Tetris is a tile-matching game where players aim to arrange blocks to fill a row and clear it.
+- The game is not about winning or losing but rather scoring points. When the game is over, the player's score is displayed.
 
-- Mục tiêu của trò chơi là di chuyển các khối gạch đang rơi từ từ xuống trong kích thước hình chữ nhật 20 hàng x 10 cột (trên màn hình). Chỗ nào có gạch rồi thì không di chuyển được tới vị trí đó. Người chơi xếp những khối hình sao cho khối hình lấp đầy 1 hàng ngang để ghi điểm và hàng ngang ấy sẽ biến mất.
-- Nếu để cho những khối hình cao quá màn hình, trò chơi sẽ kết thúc.
-- Trò chơi kết thúc khi khối gạch không rơi xuống được nữa.
-- Tất cả các Tetriminos có khả năng hoàn thành một và hai dòng. J, L có thể có ba. Chỉ có Tetrimino chữ I có khả năng để xóa bốn dòng cùng một lúc, và điều này được gọi là một "Tetris". Xóa nhiều nhất chỉ được 4 hàng/1 lần.
+### 2. How to Play
 
-### 3. Phím tắt
-- Xoay khối: phím mũi tên lên ↑.
-- Di chuyển sang phải: phím mũi tên phải →.
-- Di chuyển sang trái: phím mũi tên trái ←.
-- Làm cho khối gạch rơi nhanh hơn: phím mũi tên xuống ↓.
-- Giữ 1 khối gạch để dùng sau: phím Space.
-- ***Hard Drop*** - khối gạch rơi xuống ngay lập tức: phím Enter
+- The objective is to move falling blocks within a 20-row by 10-column rectangle (displayed on screen). Blocks cannot move to occupied spaces. Players must arrange the blocks to fill horizontal lines to score points; the filled line will then disappear.
+- The game ends if the blocks stack too high on the screen.
+- The game is over when a block can no longer fall.
+- All Tetriminos can complete one or two lines. J and L pieces can clear up to three lines. Only the I Tetrimino can clear four lines simultaneously, known as a "Tetris". A maximum of 4 rows can be cleared at a time.
 
-***Hình ảnh minh họa***
+### 3. Controls
+- Rotate block: Up arrow key ↑.
+- Move right: Right arrow key →.
+- Move left: Left arrow key ←.
+- Accelerate block fall: Down arrow key ↓.
+- Hold a block for later use: Space key.
+- ***Hard Drop*** - immediately drop the block: Enter key.
+
+***Illustrative Images***
 
 ![Tetris_Menu](Tetris_Menu.jpg)
 
 ![Tetris_Play](Tetris_Play.jpg)
 
-## Lý do chọn game
+## Reason for Choosing the Game
 
-Là một học sinh chuyên Anh hồi cấp 3 và không có một chút nền tảng về lập trình, lý do em chọn Tetris đơn giản là vì đây là một game kinh điển và có nhiều tutorial để tham khảo trong quá trình làm ạ.
+As a former English major in high school with no programming background, I chose Tetris because it is a classic game with many available tutorials for guidance during development.
 
-## Các chức năng chính
+## Main Features
 
-### 1. Logic Game
-- Xóa các khối sau khi đã xếp đầy 1 dòng.
-- Xoay các khối hình.
-- Dự đoán khối gạch tiếp theo.
-- Giữ khối gạch.
-- Có nhiều level (tính theo tốc độ rơi của khối gạch).
-- Tính và lưu điểm cao nhất.
+### 1. Game Logic
+- Clear blocks after filling a row.
+- Rotate blocks.
+- Show the next block.
+- Hold a block.
+- Multiple levels (determined by block fall speed).
+- Calculate and save the highest score.
 
-### 2. Hiệu ứng âm thanh, hình ảnh
+### 2. Sound and Visual Effects
 
-- Âm thanh:
-> Có nhạc nền, hiệu ứng âm thanh di chuyển, xoay khối, xóa hàng, khối gạch rơi và khi game over.
-- Hình ảnh:
-> Có thời gian dừng khi xóa dòng, chuyển giữa 1 số trạng thái, có thể coi là hiệu ứng. 
+- Sound:
+> Background music, sound effects for block movement, rotation, line clearing, block dropping, and game over.
+- Visuals:
+> Delays when clearing lines, transitions between states, creating effects.
 > 
-> Đặc biệt, em tự nhận thấy các hình ảnh trong game của mình được design một cách chỉn chu, bắt mắt, có sự đầu tư và tạo hứng thú cho người chơi.
+> Notably, I believe the game visuals were designed carefully, with attention to detail to create an engaging experience for players.
 
-### 3. Một số tính năng khác
+### 3. Additional Features
 
-- Menu chỉn chu: có nút Play, Setting (Bật tắt âm nhạc, hiệu ứng âm thanh, chỉnh level cho game), có nút quit.
-- Có thể pause game khi đang chơi: Có thể resume game, chơi lại, chỉnh âm thanh, âm nhạc, quay về trang menu chính.
-- Render điểm sau khi hoàn thành ván chơi, lưu và render điểm cao nhất khi đang chơi.
+- Detailed menu: includes Play button, Settings (toggle music, sound effects, adjust game level), and quit button.
+- Ability to pause the game: resume, restart, adjust sound/music, or return to the main menu.
+- Display score after a game ends, save and display the highest score during gameplay.
 
-## Các kỹ thuật sử dụng
-- Render hình ảnh, phát âm thanh, quản lý chuột, bàn phím, thời gian (SDL)
-- Sử dụng class, pointer, random, mảng, file ...
-- Phân chia các object thành từng file để dàng vận hành và quản lý
-- Thuật toán xoay khối gạch, xử lý va chạm,...
+## Techniques Used
+- Image rendering, sound playback, mouse/keyboard management, time handling (SDL).
+- Utilized classes, pointers, randomization, arrays, files, etc.
+- Divided objects into separate files for easier operation and management.
+- Rotation algorithm...
+- Implemented a rotation algorithm for the Tetriminos.
+- Managed the game grid to detect and handle filled rows.
+- Used file handling for saving and loading high scores.
+- Created modular code by dividing functionalities into multiple files for clarity and maintainability.
 
-### Đề xuất hướng phát triển tiếp theo
-- Phân chia lại các file một cách hợp lý hơn.
-- Có thể code thêm tính năng Battle (2 người chơi), chơi với máy, cho máy tự chơi.
-- Làm nhiều stage hình ảnh, cải tiến về mặt hình ảnh.
+## Lessons Learned and Challenges
+- Implementing the logic for rotating and handling the positioning of Tetriminos was challenging but rewarding.
+- Managing game state transitions and ensuring that the game responded smoothly to user input required careful attention.
+- Understanding how to integrate sound and visual effects using SDL2 enhanced my understanding of multimedia handling in programming.
+- Balancing gameplay elements such as level progression and block drop speed added complexity to the design.
 
-### Tài liệu tham khảo:
-- [Lazyfoo](https://lazyfoo.net/): SDL2 Tutorial
-- [Video tutorial hướng dẫn làm game Tetris](https://www.youtube.com/watch?v=kh3rkt6nZ2c&t=5883s): Em tham khảo các thuật toán chính về logic game ở đây và các source code github về tetris
-- Nguồn hình ảnh: Em des ở Canva và lấy các icon từ [flaticon](https://www.flaticon.com/)
-- Âm thanh: Em lấy nhạc từ [Youtube](https://www.youtube.com/?gl=VN) và sound effects từ nhiều nguồn trên mạng.
+## Future Improvements
+- Adding more advanced game mechanics, such as power-ups or special Tetrimino effects.
+- Implementing a multiplayer mode for competitive play.
+- Enhancing the user interface with more customizable options and themes.
+- Creating a more complex scoring system with bonuses for consecutive line clears.
+
+## Conclusion
+Developing this Tetris game using SDL2 was an educational experience that combined multiple aspects of game programming, from logic and object-oriented design to sound and visual integration. This project allowed me to deepen my understanding of programming concepts and learn how to build a complete, interactive application.
+
+Thank you for reading, and I hope you enjoy playing my version of Tetris!
